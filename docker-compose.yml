@@ -1,6 +1,17 @@
 version: '3'
 
 services:
+  mysql-database:
+    container_name: mysql-database
+    image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=db
+    ports:
+      - '3306:3306'
+    networks:
+      - web-network
+
   flask-api:
     build: applications/flask-api
     volumes:  # build images have the code copied inside. Mapping the directory is easier for development
@@ -9,6 +20,8 @@ services:
       - 5678:80
     networks:
       - web-network
+    depends_on:
+      - mysql-database
 
   docker-php-fpm:
     build: applications/website
@@ -28,17 +41,6 @@ services:
     volumes:
       - ./applications/website:/var/www/html
       - ./applications/nginx/conf.d:/etc/nginx/conf.d
-    networks:
-      - web-network
-
-  mysql-database:
-    container_name: mysql-database
-    image: mysql:5.7
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE=db
-    ports:
-      - '3306:3306'
     networks:
       - web-network
 
